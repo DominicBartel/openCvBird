@@ -21,7 +21,11 @@ for imageType in imageItem:
             images[imageType] = [cv2.imread('trainImages/' + imageLocation, 0)]
 
 
-img1 = cv2.imread('trainImages/10f.png', 0)
+# img1 = cv2.imread('trainImages/10f.png', 0)
+cap = cv2.VideoCapture(0)
+success, img1 = cap.read()
+# originimage = img1.copy()
+# img1 = cv2.cvt
 
 orb = cv2.ORB_create()
 
@@ -39,7 +43,8 @@ for imageType in images:
         for m,n in matches:
             if m.distance < 0.75*n.distance:
                 goodMatches.append([m])
-        if len(goodMatches) > 15 and len(goodMatches) > len(bestMatches):
+        # if len(goodMatches) > 15 and len(goodMatches) > len(bestMatches):
+        if len(goodMatches) > len(bestMatches):
             bestImage = image
             bestMatches = goodMatches
 
