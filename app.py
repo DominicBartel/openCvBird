@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import json
+import json, time
 
 imageItem = {
     "1": ["1b.png","1f.png"],
@@ -21,40 +21,46 @@ for imageType in imageItem:
             images[imageType] = [cv2.imread('trainImages/' + imageLocation, 0)]
 
 
+
 # img1 = cv2.imread('trainImages/10f.png', 0)
 cap = cv2.VideoCapture(0)
-success, img1 = cap.read()
-# originimage = img1.copy()
-# img1 = cv2.cvt
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 5)
 
-orb = cv2.ORB_create()
+while(True):
+    success, img1 = cap.read()
+    # originimage = img1.copy()
+    # img1 = cv2.cvt
 
-kp1, des1 = orb.detectAndCompute(img1, None)
+    orb = cv2.ORB_create()
 
-bestImage = []
-bestMatches = []
-for imageType in images:
-    for image in images[imageType]:
-        kp2, des2 = orb.detectAndCompute(image, None)
-        matcher = cv2.BFMatcher()
-        matches = matcher.knnMatch(des1, des2, k=2)
+    kp1, des1 = orb.detectAndCompute(img1, None)
 
-        goodMatches = []
-        for m,n in matches:
-            if m.distance < 0.75*n.distance:
-                goodMatches.append([m])
-        # if len(goodMatches) > 15 and len(goodMatches) > len(bestMatches):
-        if len(goodMatches) > len(bestMatches):
-            bestImage = image
-            bestMatches = goodMatches
+    bestImage = np.array([])
+    bestMatches = []
+    for imageType in images:
+        for image in images[imageType]:
+            kp2, des2 = orb.detectAndCompute(image, None)
+            matcher = cv2.BFMatcher()
+            matches = matcher.knnMatch(des1, des2, k=2)
 
-
-
-
-
+            goodMatches = []
+            for m,n in matches:
+                if m.distance < 0.75*n.distance:
+                    goodMatches.append([m])
+            # if len(goodMatches) > 15 and len(goodMatches) > len(bestMatches):
+            if len(goodMatches) > len(bestMatches):
+                bestImage = image
+                bestMatches = goodMatches
 
 
-matchImage = cv2.drawMatchesKnn(img1, kp1, bestImage, kp2, bestMatches, None, flags=2)
 
-cv2.imshow("Image", matchImage)
-cv2.waitKey(0)
+
+
+
+    matchImage = cv2.drawMatchesKnn(img1, kp1, bestImage, kp2, bestMatches, None, flags=2)
+
+
+    cv2.imshow("Image", matchImage)
+    # cv2.imshow("Image", img1)
+
+    cv2.waitKey(1)
